@@ -8,6 +8,7 @@ const App = {
     currentIndustry: '',
     currentStatus: '',
     currentRevenue: '',
+    currentRegion: '',
     currentSort: 'newest',
     currentView: 'grid',
 
@@ -41,6 +42,7 @@ const App = {
             clearTimeout(searchTimer);
             searchTimer = setTimeout(() => {
                 this.currentSearch = e.target.value.trim();
+                this.currentRegion = ''; // 검색 시 지역 필터 해제
                 this.renderFilteredList();
             }, 200);
         });
@@ -129,6 +131,17 @@ const App = {
                     const rev = Number(d.revenue);
                     if (isNaN(rev)) return false;
                     return rev >= range.min && rev < range.max;
+                });
+            }
+        }
+
+        // Region filter (지역 키워드 전체 매칭)
+        if (this.currentRegion) {
+            const region = REGIONS.find(r => r.label === this.currentRegion);
+            if (region) {
+                deals = deals.filter(d => {
+                    const loc = (d.location || '').toLowerCase();
+                    return region.keywords.some(kw => loc.includes(kw.toLowerCase()));
                 });
             }
         }
@@ -327,6 +340,40 @@ const App = {
         if (statusFilter) statusFilter.value = status;
         this.currentStatus = status;
         this.renderFilteredList();
+
+        // 딜 그리드로 스크롤
+        const grid = document.getElementById('dealGrid');
+        if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    },
+
+    filterByRegion(regionLabel) {
+        // 같은 지역 다시 클릭 → 필터 해제
+        if (this.currentRegion === regionLabel) {
+            this.currentRegion = '';
+            this.renderFilteredList();
+            UI.showToast('📍 지역 필터를 해제했습니다. 전체 딜을 표시합니다.', 'info');
+            return;
+        }
+
+        // 지역 필터 설정 (모든 키워드 매칭)
+        this.currentRegion = regionLabel;
+
+        // 검색 및 다른 필터 초기화
+        this.currentSearch = '';
+        this.currentIndustry = '';
+        this.currentStatus = '';
+        this.currentRevenue = '';
+        const si = document.getElementById('searchInput');
+        const fi = document.getElementById('filterIndustry');
+        const fs = document.getElementById('filterStatus');
+        const fr = document.getElementById('filterRevenue');
+        if (si) si.value = '';
+        if (fi) fi.value = '';
+        if (fs) fs.value = '';
+        if (fr) fr.value = '';
+
+        this.renderFilteredList();
+        UI.showToast(`📍 ${regionLabel} 지역 딜을 표시합니다.`, 'info');
 
         // 딜 그리드로 스크롤
         const grid = document.getElementById('dealGrid');

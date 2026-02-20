@@ -57,7 +57,7 @@ const UI = {
         Analytics.renderMonthlyTrend(deals, document.getElementById('analyticsMonthly'));
         Analytics.renderSuccessRate(deals, document.getElementById('analyticsSuccessRate'));
         Analytics.renderIndustryAvgPrice(deals, document.getElementById('analyticsIndustryPrice'));
-        Analytics.renderSummaryCards(deals, document.getElementById('analyticsSummary'));
+        Analytics.renderRegionDistribution(deals, document.getElementById('analyticsRegion'));
 
         // ---- Notification badge ----
         Notifications.renderPanel();

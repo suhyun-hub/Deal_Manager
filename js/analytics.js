@@ -177,45 +177,96 @@ const Analytics = {
         `;
     },
 
-    // 딜 요약 지표
-    renderSummaryCards(deals, container) {
+    // 지역별 분포 (카드형 그리드)
+    renderRegionDistribution(deals, container) {
         if (!container) return;
 
-        const total = deals.length;
-        const favCount = deals.filter(d => d.isFavorite).length;
-        const withDeadline = deals.filter(d => d.deadline).length;
-        const overdueCount = deals.filter(d => d.deadline && calcDday(d.deadline) > 0).length;
-        const totalRevenue = deals.reduce((s, d) => s + (Number(d.revenue) || 0), 0);
-        const avgPrice = total > 0 ? Math.round(deals.reduce((s, d) => s + (Number(d.askingPrice) || 0), 0) / total) : 0;
-        const taggedCount = deals.filter(d => d.tags && d.tags.length > 0).length;
-        const inProgress = deals.filter(d => ['검토중', '관심', '미팅진행'].includes(d.status)).length;
-        const debtRatios = deals.filter(d => Number(d.debtRatio) > 0).map(d => Number(d.debtRatio));
-        const avgDebt = debtRatios.length > 0 ? Math.round(debtRatios.reduce((s, v) => s + v, 0) / debtRatios.length) : 0;
-        const empCounts = deals.filter(d => Number(d.employeeCount) > 0).map(d => Number(d.employeeCount));
-        const avgEmp = empCounts.length > 0 ? Math.round(empCounts.reduce((s, v) => s + v, 0) / empCounts.length) : 0;
+        const regionCounts = {};
+        REGIONS.forEach(r => regionCounts[r.label] = 0);
+        let unmapped = 0;
 
-        const items = [
-            { icon: '💰', value: formatCurrency(totalRevenue), label: '총 매출합계', sub: `${total}개 딜 기준` },
-            { icon: '💎', value: formatCurrency(avgPrice), label: '평균 희망가격', sub: `딜 당 평균` },
-            { icon: '🚀', value: inProgress, label: '진행중 딜', sub: `검토·관심·미팅` },
-            { icon: '⭐', value: favCount, label: '즐겨찾기', sub: `${total}개 중 ${favCount}개` },
-            { icon: '⏰', value: `${overdueCount}`, label: '마감 초과', sub: `${withDeadline}개 설정 중` },
-            { icon: '📊', value: `${avgDebt}%`, label: '평균 부채비율', sub: `${debtRatios.length}개 기준` },
-            { icon: '👥', value: avgEmp.toLocaleString(), label: '평균 직원수', sub: `${empCounts.length}개 기준` },
-            { icon: '🏷️', value: taggedCount, label: '태그 설정', sub: `${total}개 중 ${taggedCount}개` }
-        ];
+        deals.forEach(d => {
+            if (!d.location) { unmapped++; return; }
+            const loc = d.location;
+            let matched = false;
+            for (const region of REGIONS) {
+                if (region.keywords.some(kw => loc.includes(kw))) {
+                    regionCounts[region.label]++;
+                    matched = true;
+                    break;
+                }
+            }
+            if (!matched) unmapped++;
+        });
+
+        const total = deals.length;
+        const maxCount = Math.max(...Object.values(regionCounts), 1);
+
+        const regionMeta = {
+            '서울': { icon: '🏙️', color: '#6366f1' },
+            '인천': { icon: '🌊', color: '#0ea5e9' },
+            '경기': { icon: '🏘️', color: '#10b981' },
+            '강원': { icon: '⛰️', color: '#06b6d4' },
+            '충청': { icon: '🌾', color: '#a78bfa' },
+            '전라': { icon: '🌿', color: '#ec4899' },
+            '경상': { icon: '🏭', color: '#f97316' },
+            '부산': { icon: '⚓', color: '#f59e0b' },
+            '제주': { icon: '🍊', color: '#14b8a6' }
+        };
+
+        // 딜 수 기준 내림차순 정렬
+        const sorted = REGIONS.map(r => ({
+            label: r.label,
+            count: regionCounts[r.label],
+            ...regionMeta[r.label]
+        })).sort((a, b) => b.count - a.count);
+
+        const cards = sorted.map(r => {
+            const pct = total > 0 ? ((r.count / total) * 100).toFixed(0) : 0;
+            const barW = r.count > 0 ? Math.max(8, (r.count / maxCount) * 100) : 0;
+            const isTop = r.count === maxCount && r.count > 0;
+            const glowStyle = isTop ? `box-shadow:0 0 12px ${r.color}30;border-color:${r.color}40;` : '';
+
+            return `
+                <div style="
+                    background:rgba(255,255,255,0.03);
+                    border:1px solid rgba(255,255,255,0.06);
+                    border-radius:10px;
+                    padding:10px 12px;
+                    display:flex;
+                    flex-direction:column;
+                    gap:6px;
+                    cursor:${r.count > 0 ? 'pointer' : 'default'};
+                    transition:all 0.2s ease;
+                    ${glowStyle}
+                " onmouseenter="this.style.background='rgba(255,255,255,0.07)';this.style.transform='translateY(-1px)'"
+                   onmouseleave="this.style.background='rgba(255,255,255,0.03)';this.style.transform=''"
+                   ${r.count > 0 ? `onclick="App.filterByRegion('${r.label}')"` : ''}>
+                    <div style="display:flex;align-items:center;justify-content:space-between;">
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <span style="font-size:1.1rem;">${r.icon}</span>
+                            <span style="font-size:0.78rem;font-weight:600;color:var(--text-primary);">${r.label}</span>
+                        </div>
+                        <div style="display:flex;align-items:baseline;gap:3px;">
+                            <span style="font-size:1rem;font-weight:800;color:${r.count > 0 ? r.color : 'var(--text-muted)'};">${r.count}</span>
+                            <span style="font-size:0.6rem;color:var(--text-muted);">건</span>
+                        </div>
+                    </div>
+                    <div style="position:relative;height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;">
+                        <div style="height:100%;width:${barW}%;background:${r.color};border-radius:2px;transition:width 0.6s ease;"></div>
+                    </div>
+                    <div style="font-size:0.6rem;color:var(--text-muted);text-align:right;">${pct}%</div>
+                </div>`;
+        }).join('');
+
+        const unmappedHtml = unmapped > 0
+            ? `<div style="text-align:center;font-size:0.65rem;color:var(--text-muted);margin-top:4px;">미분류 ${unmapped}건</div>` : '';
 
         container.innerHTML = `
-            <div class="analytics-mini-cards">
-                ${items.map(it => `
-                    <div class="analytics-mini-card">
-                        <span class="analytics-mini-card__icon">${it.icon}</span>
-                        <span class="analytics-mini-card__value">${it.value}</span>
-                        <span class="analytics-mini-card__label">${it.label}</span>
-                        <span class="analytics-mini-card__sub">${it.sub}</span>
-                    </div>
-                `).join('')}
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:2px;">
+                ${cards}
             </div>
+            ${unmappedHtml}
         `;
     }
 };
