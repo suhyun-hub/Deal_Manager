@@ -1,4 +1,4 @@
-const CACHE_NAME = 'deal-manager-v1';
+const CACHE_NAME = 'deal-manager-v2';
 const ASSETS = [
     './',
     './index.html',
@@ -17,6 +17,7 @@ const ASSETS = [
     './js/advfilter.js',
     './js/report.js',
     './js/csv.js',
+    './js/print.js',
     './js/swipe.js'
 ];
 
@@ -38,9 +39,15 @@ self.addEventListener('activate', e => {
     self.clients.claim();
 });
 
-// Fetch: cache-first for app shell, network-first for data
+// Fetch: network-first (최신 파일 우선, 오프라인 시 캐시 사용)
 self.addEventListener('fetch', e => {
     e.respondWith(
-        caches.match(e.request).then(cached => cached || fetch(e.request))
+        fetch(e.request)
+            .then(response => {
+                const clone = response.clone();
+                caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+                return response;
+            })
+            .catch(() => caches.match(e.request))
     );
 });
