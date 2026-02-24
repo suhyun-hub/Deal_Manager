@@ -361,6 +361,23 @@ const UI = {
                 <span style="color:var(--text-muted); font-size:0.85rem; margin-left:auto;">등록일: ${formatDate(deal.createdAt)} | 수정일: ${formatDate(deal.updatedAt)}</span>
             </div>
 
+            <!-- 메가인포 담당 정보 -->
+            ${(deal.megainfoDept || deal.megainfoContact) ? `
+            <div class="detail-section">
+                <div class="detail-section__title">📌 메가인포 담당</div>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-item__label">담당부서</div>
+                        <div class="detail-item__value">${deal.megainfoDept || '-'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-item__label">담당자</div>
+                        <div class="detail-item__value">${deal.megainfoContact || '-'}</div>
+                    </div>
+                </div>
+            </div>
+            ` : ''}
+
             <!-- 기본 정보 -->
             <div class="detail-section">
                 <div class="detail-section__title">🏢 기본 정보</div>
@@ -529,6 +546,17 @@ const UI = {
                 <input type="hidden" name="id" value="${d.id}">
                 <input type="hidden" name="isEdit" value="${isEdit}">
 
+                <div class="form-section-title">📌 메가인포 담당</div>
+
+                <div class="form-group">
+                    <label>담당부서 <span class="required">*</span></label>
+                    <input type="text" name="megainfoDept" class="form-input" value="${d.megainfoDept || ''}" placeholder="예: 투자은행본부" required>
+                </div>
+                <div class="form-group">
+                    <label>담당자 <span class="required">*</span></label>
+                    <input type="text" name="megainfoContact" class="form-input" value="${d.megainfoContact || ''}" placeholder="예: 홍길동 팀장" required>
+                </div>
+
                 <div class="form-section-title">🏢 기본 정보</div>
 
                 <div class="form-group">
@@ -568,24 +596,24 @@ const UI = {
                 <div class="form-section-title">💰 재무 정보 (단위: 억원)</div>
 
                 <div class="form-group">
-                    <label>매출액</label>
-                    <input type="number" name="revenue" class="form-input" value="${d.revenue}" placeholder="억원" step="0.1">
+                    <label>매출액 <span class="required">*</span></label>
+                    <input type="number" name="revenue" class="form-input" value="${d.revenue}" placeholder="억원" step="0.1" required>
                 </div>
                 <div class="form-group">
-                    <label>영업이익</label>
-                    <input type="number" name="operatingProfit" class="form-input" value="${d.operatingProfit}" placeholder="억원" step="0.1">
+                    <label>영업이익 <span class="required">*</span></label>
+                    <input type="number" name="operatingProfit" class="form-input" value="${d.operatingProfit}" placeholder="억원" step="0.1" required>
                 </div>
                 <div class="form-group">
-                    <label>순이익</label>
-                    <input type="number" name="netIncome" class="form-input" value="${d.netIncome}" placeholder="억원" step="0.1">
+                    <label>순이익 <span class="required">*</span></label>
+                    <input type="number" name="netIncome" class="form-input" value="${d.netIncome}" placeholder="억원" step="0.1" required>
                 </div>
                 <div class="form-group">
-                    <label>총자산</label>
-                    <input type="number" name="totalAssets" class="form-input" value="${d.totalAssets}" placeholder="억원" step="0.1">
+                    <label>총자산 <span class="required">*</span></label>
+                    <input type="number" name="totalAssets" class="form-input" value="${d.totalAssets}" placeholder="억원" step="0.1" required>
                 </div>
                 <div class="form-group">
-                    <label>부채비율 (%)</label>
-                    <input type="number" name="debtRatio" class="form-input" value="${d.debtRatio}" placeholder="%" step="0.1" min="0">
+                    <label>부채비율 (%) <span class="required">*</span></label>
+                    <input type="number" name="debtRatio" class="form-input" value="${d.debtRatio}" placeholder="%" step="0.1" min="0" required>
                 </div>
 
                 <div class="form-section-title">📑 딜 정보</div>

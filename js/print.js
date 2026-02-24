@@ -67,6 +67,12 @@ const PrintReport = {
             .pr-header__right .pr-brand { font-size: 10pt; font-weight: 700; color: #6366f1; margin-bottom: 2px; }
             .pr-header__right .pr-confidential { display: inline-block; background: #fef2f2; color: #dc2626; font-size: 7pt; padding: 2px 8px; border-radius: 3px; font-weight: 600; margin-top: 4px; border: 1px solid #fecaca; }
 
+            /* Contact Info */
+            .pr-contact-info { display: flex; gap: 18px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 16px; margin-bottom: 20px; font-size: 8.5pt; }
+            .pr-contact-info .pr-contact-item { display: flex; align-items: center; gap: 6px; }
+            .pr-contact-info .pr-contact-label { color: #64748b; font-weight: 500; }
+            .pr-contact-info .pr-contact-value { color: #1e293b; font-weight: 600; }
+
             /* Pipeline Summary */
             .pr-pipeline { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
             .pr-pipeline__item { flex: 1; min-width: 80px; text-align: center; padding: 10px 6px; border-radius: 8px; border: 1px solid #e2e8f0; }
@@ -160,7 +166,15 @@ const PrintReport = {
         return `<span class="pr-badge" style="background:${s.bg};color:${s.color};">${s.icon} ${status}</span>`;
     },
 
-    header(title, subtitle) {
+    header(title, subtitle, deal) {
+        const contactPerson = deal ? (deal.megainfoContact || '') : '';
+        const contactDept = deal ? (deal.megainfoDept || '') : '';
+        const contactHtml = (contactPerson || contactDept) ? `
+        <div class="pr-contact-info">
+            ${contactDept ? `<div class="pr-contact-item"><span class="pr-contact-label">📂 담당부서:</span><span class="pr-contact-value">${contactDept}</span></div>` : ''}
+            ${contactPerson ? `<div class="pr-contact-item"><span class="pr-contact-label">👤 담당자:</span><span class="pr-contact-value">${contactPerson}</span></div>` : ''}
+        </div>` : '';
+
         return `
         <div class="pr-header">
             <div class="pr-header__left">
@@ -172,7 +186,8 @@ const PrintReport = {
                 <div style="font-size:7.5pt;color:#64748b;margin-top:2px;">작성일: ${new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\. /g, '.').replace(/\.$/, '')}</div>
                 <div class="pr-confidential">CONFIDENTIAL</div>
             </div>
-        </div>`;
+        </div>
+        ${contactHtml}`;
     },
 
     footer() {
@@ -331,7 +346,7 @@ const PrintReport = {
         const rf = calcRiskFlags(deal);
 
         return `
-        ${this.header('M&A Deal Report', `${deal.companyName} · 딜 상세 분석 보고서`)}
+        ${this.header('M&A Deal Report', `${deal.companyName} · 딜 상세 분석 보고서`, deal)}
 
         <!-- Deal Header -->
         <div class="pr-deal-hd">

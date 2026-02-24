@@ -204,9 +204,21 @@ const App = {
         if (!form) return;
 
         // Validate
+        const megainfoDept = form.querySelector('[name="megainfoDept"]').value.trim();
+        const megainfoContact = form.querySelector('[name="megainfoContact"]').value.trim();
         const companyName = form.querySelector('[name="companyName"]').value.trim();
         const industry = form.querySelector('[name="industry"]').value;
 
+        if (!megainfoDept) {
+            UI.showToast('담당부서를 입력해주세요.', 'error');
+            form.querySelector('[name="megainfoDept"]').focus();
+            return;
+        }
+        if (!megainfoContact) {
+            UI.showToast('담당자를 입력해주세요.', 'error');
+            form.querySelector('[name="megainfoContact"]').focus();
+            return;
+        }
         if (!companyName) {
             UI.showToast('회사명을 입력해주세요.', 'error');
             form.querySelector('[name="companyName"]').focus();
@@ -218,11 +230,29 @@ const App = {
             return;
         }
 
+        // 재무 정보 필수 검증
+        const finFields = [
+            { name: 'revenue', label: '매출액' },
+            { name: 'operatingProfit', label: '영업이익' },
+            { name: 'netIncome', label: '순이익' },
+            { name: 'totalAssets', label: '총자산' },
+            { name: 'debtRatio', label: '부채비율' }
+        ];
+        for (const f of finFields) {
+            const el = form.querySelector(`[name="${f.name}"]`);
+            if (!el || el.value.trim() === '') {
+                UI.showToast(`${f.label}을(를) 입력해주세요.`, 'error');
+                if (el) el.focus();
+                return;
+            }
+        }
+
         const isEdit = form.querySelector('[name="isEdit"]').value === 'true';
         const id = form.querySelector('[name="id"]').value;
 
         const data = {};
         const fields = [
+            'megainfoContact', 'megainfoDept',
             'companyName', 'industry', 'location', 'foundedYear', 'employeeCount',
             'revenue', 'operatingProfit', 'netIncome', 'totalAssets', 'debtRatio',
             'saleReason', 'askingPrice', 'sharePercentage', 'dealStructure',

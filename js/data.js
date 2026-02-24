@@ -180,6 +180,9 @@ const TAG_PRESETS = [
 function createDeal(overrides = {}) {
     return {
         id: overrides.id || generateId(),
+        // 메가인포 담당 정보
+        megainfoContact: '',
+        megainfoDept: '',
         // 기본 정보
         companyName: '',
         industry: '',
