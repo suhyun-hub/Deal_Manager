@@ -21,10 +21,13 @@
         <!-- ============ Header ============ -->
         <header class="app-header">
             <div class="app-header__title">
-                <div class="app-header__logo">📊</div>
+                <div class="app-header__logo">
+                    <img src="icons/unnamed.webp" alt="메가인포 로고" class="app-header__logo-img">
+                </div>
                 <div>
-                    <h1>M&A Deal Manager</h1>
-                    <div class="app-header__subtitle">NEWZEN X 메가인포 · 딜 관리 시스템</div>
+                    <h1><span class="brand-mega">MEGA</span><span class="brand-info">INFO</span> <span
+                            class="brand-dot">·</span> 딜 관리 시스템</h1>
+                    <div class="app-header__subtitle">NEWZEN M&A Deal Manager</div>
                 </div>
             </div>
             <div class="app-header__actions">
@@ -144,8 +147,8 @@
                     <button class="view-toggle__btn" id="viewKanban" onclick="App.setView('kanban')">📌 칸반</button>
                 </div>
                 <span>총 <strong id="dealCount" style="color:var(--text-accent);">0</strong></span>
-                <button class="btn btn-ghost btn-sm" onclick="App.resetData()" data-tooltip="샘플 데이터로 초기화">🔄
-                    초기화</button>
+                <button class="btn btn-ghost btn-sm" onclick="App.resetData()" data-tooltip="전체 데이터 삭제">🗑️
+                    전체 삭제</button>
             </div>
         </div>
 
