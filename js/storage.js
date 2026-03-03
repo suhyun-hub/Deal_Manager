@@ -62,18 +62,9 @@ const Storage = {
         return this.saveAll(filtered);
     },
 
-    // 샘플 데이터로 초기화 (데이터가 없을 때만)
-    initWithSampleData() {
-        if (this.getAll().length === 0) {
-            this.saveAll(SAMPLE_DEALS);
-            return true;
-        }
-        return false;
-    },
-
-    // 전체 초기화 (샘플 데이터로 리셋)
+    // 전체 데이터 삭제
     reset() {
-        this.saveAll(SAMPLE_DEALS);
+        this.saveAll([]);
     },
 
     // 타임라인 메모 추가

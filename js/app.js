@@ -14,8 +14,6 @@ const App = {
 
     // ---- Init ----
     init() {
-        // 샘플 데이터 초기화
-        Storage.initWithSampleData();
 
         // 필터 초기화
         UI.initFilters();
@@ -334,10 +332,10 @@ const App = {
 
     // ---- Reset ----
     resetData() {
-        if (!confirm('모든 데이터를 샘플 데이터로 초기화하시겠습니까?')) return;
+        if (!confirm('등록된 모든 딜 데이터를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
         Storage.reset();
         Compare.clearAll();
-        UI.showToast('데이터가 초기화되었습니다.', 'info');
+        UI.showToast('모든 데이터가 삭제되었습니다.', 'info');
         this.refresh();
     },
 
